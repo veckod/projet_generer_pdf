@@ -1,0 +1,17 @@
+<div>
+  <h1>Ecrire une reclamation:</h1><?php
+  if($result->rowCount()){
+                while($utilisateur = $result->fetch()){
+                    ?>
+  <select class="form-select" aria-label="Default select example">
+  <option selected><?php echo $utilisateur['nom']?></option>
+  <option value="1"><?php echo $utilisateur['nom']?></option>
+ 
+</select>
+<br>
+  <input type="text" size="50" style="height:200px;" />
+</div>
+<?php
+                }
+              }
+?>
