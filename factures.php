@@ -17,20 +17,30 @@ $pdf = new FPDF();
 
    
         $con = new PDO('mysql:host=localhost;dbname=bddfpdf;charset=utf8','root', '');
+        //$con = new PDO('mysql:host=veckod.com;dbname=veckuwya_bddfpdf;charset=utf8','veckuwya_vick', 'AzErTyY20v');
         if(isset($_GET['uid'])){
             $uid = $_GET['uid'];
             $query = "SELECT * FROM utilisateur WHERE id='$uid'";
             $query2 = "SELECT * FROM facture WHERE id_utilisateur='$uid'";
-            $query3 = "SELECT * FROM article,facture WHERE facture.id_utilisateur='$uid' AND facture.id_article=article.id_article";
+            $query3 = "SELECT prix FROM article,facture WHERE facture.id_utilisateur='$uid' AND facture.id_article=article.id_article";
+            $query4 = "SELECT titre FROM article,facture WHERE facture.id_utilisateur='$uid' AND facture.id_article=article.id_article";
+            $query5 = "SELECT nb_articles FROM article,facture WHERE facture.id_utilisateur='$uid' AND facture.id_article=article.id_article";
+            $query6 = "SELECT total FROM article,facture WHERE facture.id_utilisateur='$uid' AND facture.id_article=article.id_article";
             $result = $con->prepare($query);
             $result2 = $con->prepare($query2);
             $result3 = $con->prepare($query3);
+            $result4 = $con->prepare($query4);
+            $result5 = $con->prepare($query5);
+            $result6 = $con->prepare($query6);
             $result->execute();
             $result2->execute();
             $result3->execute();
-            if($result->rowCount()!=0 || $result2->rowCount()!=0 || $result3->rowCount()!=0){
+            $result4->execute();
+            $result5->execute();
+            $result6->execute();
+            if($result->rowCount()!=0 || $result2->rowCount()!=0 || $result3->rowCount()!=0|| $result4->rowCount()!=0|| $result5->rowCount()!=0|| $result6->rowCount()!=0){
                 $facture = $result2->fetch();
-                $titre = $result3->fetch();
+        
                 while($utilisateur = $result->fetch()){
                     $pdf->SetTextColor(1,1,1);
                     $pdf->Cell(80,115,$utilisateur['nom'],0,0,'L');
@@ -53,58 +63,81 @@ $pdf = new FPDF();
                     $pdf->SetFont('Arial','B',12);
                     $pdf->Cell(180,10,"SL.      Item Description                                                 Price                 Qty.                 Total",1,0,'L');
                     $pdf->Ln(1);
-                    //$taille = strlen($titre);
-                    $i=1;
-                    $pdf->Cell(14,40,$i,0,0,'L');
-                    $pdf->Cell(91,40,$titre['titre'],0,0,'L');
-                    $pdf->Cell(33,40,$titre['prix'],0,0,'L');
-                    $pdf->Cell(26,40,$titre['nb_articles'],0,0,'L');
-                    $pdf->Cell(00,40,$titre['total'],0,0,'L');
-                    //Line(float x1, float y1, float x2, float y2)
-                    $pdf->Ln(5);
-                    $pdf->Cell(180,40,"___________________________________________________________________________",0,0,'L');
 
-                    $pdf->Ln(100);
-                    $pdf->SetFont('Arial','B',10);
-                    $pdf->Cell(160,40,"Sub Total:",0,0,'R');
-                    $pdf->Cell(0,40,$titre['total'],0,0,'R');
-                    $pdf->Ln(5);
-                    
-                    $pdf->Cell(150,40,"Tax:",0,0,'R');
-                    $pdf->Cell(32,40,"0.00%",0,0,'R');
-                    $pdf->Ln(5);
-                    $pdf->Cell(183,40,"_____________________",0,0,'R');
-                    $pdf->Ln(7);
-                    $pdf->Cell(152,40,"Total:",0,0,'R');
-                    $pdf->Cell(24,40,$titre['total'],0,0,'R');
-                }   
+                }
+                
+                $i=1;
+                $totalAvantTax=0;
+                $countLigne=6;
+                $pdf->Ln(20);
+                $pdf->SetRightMargin(10);
+                $pdf->SetLeftMargin(17);
 
-            }
-            else{
-                echo "error";
-            }
-           // if($result2->rowCount()!=0){
-              //  while($facture = $result2->fetch()){
-                /*
+                while($titreArt = $result4->fetch()){ 
+                    //apres 5 lignes d'article: ajoute une nouvelle page
+                /*    if($i==$countLigne){
+                        $pdf->AddPage();
+                        $countLigne=$countLigne+6;    
+                    } */         
+                   $pdf->Cell(14,0,$i,0,0,'L');
+                   $pdf->Cell(0,0,$titreArt['titre'],0,0,'L');
+                   $pdf->Write(3,"____________________________________________________________________________");
+                   $pdf->Ln(15);
+                   $i++;
+                } 
+
+                $pdf->SetLeftMargin(122);
+                $pdf->Sety(124);
+                while($prixArt = $result3->fetch()){
+                    $pdf->Cell(0,0,$prixArt['prix'],0,0,'L');
+                    $pdf->Ln(18);
+                   
+                 }  
+                 $pdf->SetLeftMargin(154);
+                 $pdf->Sety(124);
+                 while($nbArt = $result5->fetch()){
+                    $pdf->Cell(0,0,$nbArt['nb_articles'],0,0,'L');
+                    $pdf->Ln(18);
+                 }  
+                 $pdf->SetLeftMargin(180);
+                 $pdf->Sety(124);
+                 while($total = $result6->fetch()){
+                    $pdf->Cell(0,0,$total['total'],0,0,'L');
+                    $pdf->Ln(18);
+                    $totalAvantTax=$totalAvantTax+$total['total'];
+                 }     
+                    $pdf->Sety(224);
                     $pdf->SetFont('Arial','B',14);
-                    $pdf->Cell(0,115,$facture['num_facture'],0,0,'R');
-                    $pdf->Cell(0,126,$facture['date_achat'],0,0,'R');
-                    $pdf->Ln(80);
-                    $pdf->SetFont('Arial','B',12);
-                    $pdf->Cell(180,10,"SL.      Item Description                                                 Price                 Qty.                 Total",1,0,'L');
-                    $pdf->Ln(1);
-                    $i=0;
-                    */
-                   // while(){
-                     //   $pdf->Cell(0,115,$facture['id_facture'],0,0,'R');
-                    //}
-             //   }
-/*
+                    $pdf->SetRightMargin(40);
+                    $pdf->SetLeftMargin(130);
+                    $pdf->Write(3,'Sub Total:');
+                    $pdf->SetRightMargin(0);
+                    $pdf->SetLeftMargin(170);
+                    $pdf->Write(3,$totalAvantTax);
+                    $pdf->SetRightMargin(40);
+                    $pdf->SetLeftMargin(130);
+                    $pdf->Ln(6);
+                    $pdf->Write(3,'Tax:');
+                    $pdf->SetRightMargin(0);
+                    $pdf->SetLeftMargin(170);
+                    $pdf->Write(3,'21%');
+                    $pdf->Sety(236);
+                    $pdf->SetRightMargin(0);
+                    $pdf->SetLeftMargin(130);
+                    $pdf->Write(3,'___________________');
+                    $pdf->Ln(6);
+                    $pdf->Write(3,'Total:');
+                    $pdf->SetRightMargin(0);
+                    $pdf->SetLeftMargin(170);
+                    $taxe=($totalAvantTax/100)*21;
+                    $totalApresTax = $totalAvantTax+$taxe;
+                    $pdf->Write(3,$totalApresTax);
+                 
             }
             else{
                 echo "error";
             }
-            */
+           
         }
     
 
