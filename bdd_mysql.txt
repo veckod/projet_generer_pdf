@@ -1,0 +1,61 @@
+CREATE DATABASE bddfpdf;
+CREATE TABLE utilisateur(
+
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(50) not null,
+    adresse_rue VARCHAR(50) not null,
+    cp_ville VARCHAR(50) not null
+    
+
+
+);
+CREATE TABLE article(
+
+    id_article INT AUTO_INCREMENT PRIMARY KEY,
+    titre VARCHAR(50),
+    prix FLOAT
+);
+
+CREATE TABLE facture(
+
+    id_facture INT AUTO_INCREMENT,
+    num_facture VARCHAR(50),
+    id_utilisateur INT,
+    id_article INT,
+    nb_articles INT,
+    total float,
+    date_achat DATE,
+    PRIMARY KEY(id_facture,id_utilisateur, id_article),
+    FOREIGN KEY(id_utilisateur)REFERENCES utilisateur(id),
+	FOREIGN KEY(id_article)REFERENCES article(id_article)
+    
+);
+
+
+
+
+
+INSERT INTO article VALUES("","iphone",600);
+INSERT INTO article VALUES("","airpods",180);
+INSERT INTO article VALUES("","ipad pro",1150);
+INSERT INTO article VALUES("","earpods",30);
+INSERT INTO article VALUES("","surface pro 8",1000);
+INSERT INTO article VALUES("","apple watch 7",500);
+INSERT INTO article VALUES("","apple pencil",130);
+INSERT INTO article VALUES("","cover ipad",60); 
+
+INSERT INTO utilisateur VALUES("","Ivan baba","40 Rue de New York","5000, Namur");
+INSERT INTO utilisateur VALUES("","Sarah didi","25 Rue de Pierre gi","1000, Bruxelles");
+INSERT INTO utilisateur VALUES("","George toto","40 Rue de Marie-Christine","1000, Bruxelles");
+INSERT INTO utilisateur VALUES("","Vick Tor","40 Avenue du charbon","4020, Liege");
+
+
+INSERT INTO facture VALUES("","2222",2,4,2,60,"2022-02-13");
+INSERT INTO facture VALUES("","3633",4,1,1,600,"2019-05-03");
+INSERT INTO facture VALUES("","8965",1,3,1,1150,"2021-06-10");
+INSERT INTO facture VALUES("","3421",3,2,1,30,"2020-09-01");
+INSERT INTO facture VALUES("","2222",2,1,1,600,"2022-02-13");
+INSERT INTO facture VALUES("","2222",2,3,1,1150,"2022-02-13");
+INSERT INTO facture VALUES("","2222",2,5,1,1000,"2022-02-13");
+INSERT INTO facture VALUES("","2222",2,6,2,1000,"2022-02-13");
+
